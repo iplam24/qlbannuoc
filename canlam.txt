@@ -1,9 +1,3 @@
-- Làm thêm màn hình cho user sửa thông tin cá nhân gồm họ tên, địa chỉ, số điện thoại, đổi mật khẩu, làm màn hình admin xử lý thống kê sản phẩm theo ngày, tháng, năm( chức năng chọn thống kê), màn hình báo cáo trên trang admin,
-trước mắt vậy đã để tao làm be cho
+- Làm thêm màn hình cho user sửa thông tin cá nhân gồm họ tên, số điện thoại, đổi mật khẩu, màn hình báo cáo trên trang admin,
+- Làm màn hình thêm địa chỉ,xem ở cái phần giỏ hàng, làm thêm màn hình hiển thị đơn hàng cho user
 
-
-api thống kê,
-router.get('/thongke/ngay/:date', getRevenueByDateAPI);
-router.get('/thongke/thang/:year/:month', getRevenueByMonthAPI);
-router.get('/thongke/nam/:year', getRevenueByYearAPI);
-dùng 3 api này để xử lý
