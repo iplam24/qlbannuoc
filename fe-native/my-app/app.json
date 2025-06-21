@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "VnuaCafe",
+    "slug": "my-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Ứng dụng cần truy cập vào thư viện ảnh của bạn để tải lên hình ảnh sản phẩm",
+          "cameraPermission": "Ứng dụng cần truy cập vào camera của bạn để chụp ảnh sản phẩm"
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Ứng dụng cần truy cập vào thư viện ảnh của bạn để tải lên hình ảnh sản phẩm",
+        "NSCameraUsageDescription": "Ứng dụng cần truy cập vào camera của bạn để chụp ảnh sản phẩm",
+        "NSMicrophoneUsageDescription": "Ứng dụng cần truy cập vào microphone của bạn khi quay video sản phẩm"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.iplam24.myapp"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "408dc6e8-7b6b-43d2-ae65-1708ffec6dd8"
+      }
+    }
+  }
+}
