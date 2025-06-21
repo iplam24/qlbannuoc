@@ -4,7 +4,7 @@ const {getProducts,getTopSelling,checkUser
     ,getUserRoleController, register,getUserAPI
     ,getAllUsersAPI,addProductAPI,deleteProductAPI,getProductDetailAPI,placeOrderAPI,listAllOrders
     ,updateOrderStatus,addCartAPI,placeOrderFromCartAPI,listAllStatusAPI,getAllCartAPI,getUserIdAPI,getRevenueByDateAPI,
-    getRevenueByMonthAPI,getRevenueByYearAPI,updateProductAPI,addShippingAddressAPI
+    getRevenueByMonthAPI,getRevenueByYearAPI,updateProductAPI,addShippingAddressAPI,getAllAdressShippingAPI
 }=require('../controller/apiController');
 const router =express.Router();
 
@@ -27,7 +27,8 @@ router.post("/userinfor",getUserAPI);
 router.post("/dangky",register);
 router.post("/dangnhap",checkUser);
 router.get("/userinforid/:userId",getUserIdAPI);
-router.post("/update-diachi",addShippingAddressAPI);
+router.post("/addAddress",addShippingAddressAPI);
+router.get("/diachi/:userId",getAllAdressShippingAPI);
 
 //====API GIỎ HÀNG====//
 router.post("/addCart",addCartAPI);

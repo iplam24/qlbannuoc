@@ -199,14 +199,13 @@ const addShippingAddress = async ({
   dia_chi,
   so_dien_thoai,
   nguoi_nhan,
-  mac_dinh = false
 }) => {
   try {
     const [result] = await connection.promise().query(
       `INSERT INTO dia_chi_nhan_hang (
-        id_nguoi_dung, dia_chi, so_dien_thoai, nguoi_nhan, mac_dinh
-      ) VALUES (?, ?, ?, ?, ?)`,
-      [id_nguoi_dung, dia_chi, so_dien_thoai, nguoi_nhan, mac_dinh]
+        id_nguoi_dung, dia_chi, so_dien_thoai, nguoi_nhan
+      ) VALUES (?, ?, ?, ?)`,
+      [id_nguoi_dung, dia_chi, so_dien_thoai, nguoi_nhan]
     );
     return result;
   } catch (err) {
@@ -214,6 +213,17 @@ const addShippingAddress = async ({
     throw err;
   }
 };
+
+const getAllAdressShipping= async(userId)=>{
+    try {
+        const [shippingAddress] = await connection.promise().query(`SELECT * FROM dia_chi_nhan_hang WHERE id_nguoi_dung = ? AND da_xoa = 0`,[userId]);
+        return shippingAddress;
+    } catch (error) {
+      console.log("Lỗi khi lấy ra danh sách địa chỉ",error);
+      throw err;
+    }
+}
+
 
 //===============CRUD giỏ hàng============////
 const addToCart = async (userId, productId, quantity = 1) => {
@@ -277,9 +287,9 @@ const getAllCart = async (userId) => {
 
 
 //===============CRUD Đơn hàng ================//
-const placeOrderFromCart = async (userId, note = '') => {
+const placeOrderFromCart = async (userId, diaChiId, note = '') => {
   try {
-    // Lấy sản phẩm trong giỏ hàng + giá
+    // 1. Lấy sản phẩm trong giỏ hàng
     const [cartItems] = await connection.promise().query(
       `SELECT gh.id_san_pham, gh.so_luong, sp.gia 
        FROM gio_hang gh
@@ -292,26 +302,30 @@ const placeOrderFromCart = async (userId, note = '') => {
       throw new Error('Giỏ hàng trống');
     }
 
-    //Tính tổng tiền
+    // 2. Tính tổng tiền
     const total = cartItems.reduce((sum, item) => {
       return sum + item.so_luong * item.gia;
     }, 0);
 
-    //Tạo đơn hàng
-    const orderId = await createOrder(userId, total, note);
+    // 3. Tạo đơn hàng (truyền thêm địa chỉ nhận hàng)
+    const orderId = await createOrder(userId, total, note, diaChiId);
 
-    //Thêm chi tiết đơn hàng
+    // 4. Thêm chi tiết đơn hàng
     for (const item of cartItems) {
       await addOrderDetail(orderId, item.id_san_pham, item.so_luong, item.gia);
     }
 
-    //Xoá giỏ hàng
+    // 5. Xoá giỏ hàng sau khi đặt xong
     await connection.promise().query(
       'DELETE FROM gio_hang WHERE id_nguoi_dung = ?',
       [userId]
     );
 
-    return { success: true, orderId, message: 'Đặt hàng thành công' };
+    return {
+      success: true,
+      orderId,
+      message: 'Đặt hàng thành công ó anh iuuu '
+    };
 
   } catch (err) {
     console.error('❗ Lỗi khi đặt hàng từ giỏ hàng:', err);
@@ -319,19 +333,23 @@ const placeOrderFromCart = async (userId, note = '') => {
   }
 };
 
+
 // Thêm đơn hàng mới
-const createOrder = async (userId, total, note = '') => {
+const createOrder = async (userId, total, note = '', diaChiId, statusId = 1) => {
   try {
     const [result] = await connection.promise().query(
-      'INSERT INTO don_hang (id_nguoi_dung, tong_tien, id_trang_thai, ghi_chu) VALUES (?, ?, 1, ?)',
-      [userId, total, note]
+      `INSERT INTO don_hang (id_nguoi_dung, tong_tien, id_trang_thai, ghi_chu, id_dia_chi_nhan_hang)
+       VALUES (?, ?, ?, ?, ?)`,
+      [userId, total, statusId, note, diaChiId]
     );
-    return result.insertId; 
+
+    return result.insertId; // Trả về id đơn hàng mới đóa anh yêu ơi 💘
   } catch (err) {
-    console.error('Lỗi khi tạo đơn hàng:', err);
+    console.error('💥 Lỗi khi tạo đơn hàng:', err);
     throw err;
   }
 };
+
 
 // Thêm chi tiết đơn hàng
 const addOrderDetail = async (orderId, productId, quantity, price) => {
@@ -353,7 +371,7 @@ const addOrderDetail = async (orderId, productId, quantity, price) => {
 const getAllOrderStatus = async () => {
   try {
     const [orderStatus] = await connection.promise().query(
-      `SELECT * FROM trang_thai_don_hang`
+      `SELECT * FROM trang_thai_don_hang ORDER BY id`
     );
     return orderStatus;
   } catch (err) {
@@ -372,12 +390,14 @@ const getAllOrders = async () => {
         dh.tong_tien,
         tth.ten_trang_thai,
         nd.ho_ten AS ten_nguoi_dat,
-        nd.so_dien_thoai,
-        nd.dia_chi, -- Lấy thêm địa chỉ nè anh iu
+        dcnh.nguoi_nhan,
+        dcnh.so_dien_thoai AS sdt_nguoi_nhan,
+        dcnh.dia_chi AS dia_chi_giao,
         dh.ghi_chu
       FROM don_hang dh
       JOIN nguoi_dung nd ON dh.id_nguoi_dung = nd.id
       JOIN trang_thai_don_hang tth ON dh.id_trang_thai = tth.id
+      LEFT JOIN dia_chi_nhan_hang dcnh ON dh.id_dia_chi_nhan_hang = dcnh.id
       ORDER BY dh.ngay_dat_hang DESC
     `);
     return orders;
@@ -388,12 +408,14 @@ const getAllOrders = async () => {
 };
 
 
-//Lấy ra chi tiết đơn hàng
+
 const getOrderDetails = async (orderId) => {
   try {
     const [details] = await connection.promise().query(`
       SELECT 
+        sp.id AS id_san_pham,
         sp.ten_san_pham,
+        sp.img,
         ctdh.so_luong,
         ctdh.gia_tai_thoi_diem_dat AS don_gia,
         (ctdh.so_luong * ctdh.gia_tai_thoi_diem_dat) AS thanh_tien
@@ -401,9 +423,10 @@ const getOrderDetails = async (orderId) => {
       JOIN san_pham sp ON ctdh.id_san_pham = sp.id
       WHERE ctdh.id_don_hang = ?
     `, [orderId]);
+
     return details;
   } catch (err) {
-    console.error('Lỗi khi lấy chi tiết đơn hàng:', err);
+    console.error('💥 Lỗi khi lấy chi tiết đơn hàng:', err);
     throw err;
   }
 };
@@ -490,5 +513,5 @@ const updateOrderStatusDB = async (orderId, statusId) => {
 module.exports = {getAllProducts,getTopSellingProducts,checkUserExists,getUserRole,registerUser,checkUserExistDB,getUser,
   getAllUsers,addProduct,getproductDetail,createOrder,addOrderDetail,updateRevenueStats,getAllOrders,getOrderDetails,updateOrderStatusDB,addToCart,
   placeOrderFromCart,getAllOrderStatus,getAllCart,getUserInforId,updateProductWithImage,
-  updateProductWithoutImage,deleteProduct,addShippingAddress
+  updateProductWithoutImage,deleteProduct,addShippingAddress,getAllAdressShipping
 };

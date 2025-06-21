@@ -1,10 +1,14 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform, StatusBar } from 'react-native';
+
 
 export const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f4f4f4',
-    },
+    container: { 
+    flex: 1, 
+    padding: 16, 
+    backgroundColor: '#fff',
+    paddingTop: Platform.OS === 'ios' ? 0 : StatusBar.currentHeight,
+    marginTop:50
+  },
     scrollContent: {
         padding: 16,
         paddingBottom: 100,

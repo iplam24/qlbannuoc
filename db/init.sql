@@ -62,18 +62,18 @@ VALUES ('Đang chờ xác nhận'),
     ('Đã hủy');
 
 ---
-
--- Bảng đơn hàng
 CREATE TABLE don_hang (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    id_nguoi_dung INT NOT NULL, -- Người dùng đặt hàng
-    ngay_dat_hang DATETIME DEFAULT CURRENT_TIMESTAMP, -- Thời gian đặt hàng
-    tong_tien DECIMAL(10, 2) NOT NULL, -- Tổng số tiền của đơn hàng
-    id_trang_thai INT NOT NULL, -- Trạng thái hiện tại của đơn hàng
-    ngay_cap_nhat_trang_thai DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Thời gian cập nhật trạng thái
-    ghi_chu TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci, -- Ghi chú thêm về đơn hàng (nếu có)
+    id_nguoi_dung INT NOT NULL,
+    id_dia_chi_nhan_hang INT,
+    ngay_dat_hang DATETIME DEFAULT CURRENT_TIMESTAMP,
+    tong_tien DECIMAL(10, 2) NOT NULL,
+    id_trang_thai INT NOT NULL,
+    ngay_cap_nhat_trang_thai DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    ghi_chu TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     FOREIGN KEY (id_nguoi_dung) REFERENCES nguoi_dung (id),
-    FOREIGN KEY (id_trang_thai) REFERENCES trang_thai_don_hang (id)
+    FOREIGN KEY (id_trang_thai) REFERENCES trang_thai_don_hang (id),
+    FOREIGN KEY (id_dia_chi_nhan_hang) REFERENCES dia_chi_nhan_hang(id)
 );
 
 ---

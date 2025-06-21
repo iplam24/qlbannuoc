@@ -46,7 +46,7 @@ export default function OrderManagementScreen() {
 
   useEffect(() => {
     const filtered = orders.filter(order =>
-      order.ten_nguoi_dat?.toLowerCase().includes(searchTerm.toLowerCase())
+      order.nguoi_nhan?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredOrders(filtered);
   }, [searchTerm, orders]);
@@ -131,10 +131,10 @@ export default function OrderManagementScreen() {
           filteredOrders.map((order) => (
             <View key={order.id} style={styles.card}>
               <View style={{ flex: 1 }}>
-                <Text style={styles.name}>Order #{order.id} - {order.ten_nguoi_dat}</Text>
+                <Text style={styles.name}>Order #{order.id} - {order.nguoi_nhan}</Text>
                 <Text>Ngày đặt: {formatDate(order.ngay_dat_hang)}</Text>
-                <Text>SĐT: {order.so_dien_thoai}</Text>
-                <Text>Địa chỉ: {order.dia_chi || 'Không có'}</Text>
+                <Text>SĐT: {order.sdt_nguoi_nhan}</Text>
+                <Text>Địa chỉ: {order.dia_chi_giao || 'Không có'}</Text>
                 <Text>Trạng thái: {order.ten_trang_thai}</Text>
                 <Text>Ghi chú: {order.ghi_chu || 'Không có'}</Text>
                 <Text style={{ fontWeight: 'bold', marginTop: 6 }}>Chi tiết đơn hàng:</Text>

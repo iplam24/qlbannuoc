@@ -7,7 +7,7 @@ const {getAllProducts,getTopSellingProducts,checkUserExists,getUserRole, registe
   getAllUsers,addProduct,getproductDetail,createOrder, addOrderDetail,updateOrderStatusDB,getAllOrders,getOrderDetails,addToCart,placeOrderFromCart,getAllOrderStatus
 ,getAllCart,getUserInforId,updateProductWithImage,
   updateProductWithoutImage,
-  deleteProduct
+  deleteProduct,getAllAdressShipping,addShippingAddress
 } = require('../services/CRUD-services');
 
 const {getRevenueByDate, getRevenueByMonth, getRevenueByYear} = require('../services/thongke-doanhthu');
@@ -106,37 +106,7 @@ const deleteProductAPI = async (req, res) => {
     res.status(500).json({ success: false, message: 'Xoá sản phẩm thất bại' });
   }
 };
-// Hàm thêm địa chỉ nhận hàng
-const addShippingAddressAPI = async (req, res) => {
-  try {
-    const { id_nguoi_dung, dia_chi, so_dien_thoai, nguoi_nhan, mac_dinh } = req.body;
 
-    if (!id_nguoi_dung || !dia_chi || !nguoi_nhan) {
-      return res.status(400).json({ message: 'Thiếu thông tin bắt buộc' });
-    }
-
-    // Nếu mac_dinh = true thì bỏ set tất cả các địa chỉ trước đó về false
-    if (mac_dinh) {
-      await connection.promise().query(
-        'UPDATE dia_chi_nhan_hang SET mac_dinh = false WHERE id_nguoi_dung = ?',
-        [id_nguoi_dung]
-      );
-    }
-
-    // Thêm địa chỉ mới
-    const [result] = await connection.promise().query(
-      `INSERT INTO dia_chi_nhan_hang (
-        id_nguoi_dung, dia_chi, so_dien_thoai, nguoi_nhan, mac_dinh
-      ) VALUES (?, ?, ?, ?, ?)`,
-      [id_nguoi_dung, dia_chi, so_dien_thoai || null, nguoi_nhan, mac_dinh || false]
-    );
-
-    res.status(201).json({ message: 'Thêm địa chỉ thành công', id: result.insertId });
-  } catch (err) {
-    console.error('Lỗi khi thêm địa chỉ:', err);
-    res.status(500).json({ message: 'Lỗi server khi thêm địa chỉ' });
-  }
-};
 
 
 
@@ -238,7 +208,51 @@ const getAllUsersAPI = async (req, res) => {
     res.status(500).json({ success: false, message: 'Không thể lấy danh sách người dùng!' });
   }
 };
+// Hàm thêm địa chỉ nhận hàng
+const addShippingAddressAPI = async (req, res) => {
+  try {
+    const { id_nguoi_dung, dia_chi, so_dien_thoai, nguoi_nhan } = req.body;
 
+    if (!id_nguoi_dung || !dia_chi || !nguoi_nhan) {
+      return res.status(400).json({ message: 'Thiếu thông tin bắt buộc' });
+    }
+    const result = await addShippingAddress({
+      id_nguoi_dung,
+      dia_chi,
+      so_dien_thoai,
+      nguoi_nhan,
+    });
+
+    res.status(201).json({ message: 'Thêm địa chỉ thành công', id: result.insertId });
+  } catch (err) {
+    console.error('Lỗi khi thêm địa chỉ:', err);
+    res.status(500).json({ message: 'Lỗi server khi thêm địa chỉ' });
+  }
+};
+
+const getAllAdressShippingAPI = async (req, res) => {
+  try {
+    const userId = req.params.userId; 
+
+    if (!userId) {
+      return res.status(400).json({ message: 'Thiếu userId' });
+    }
+
+    const addresses = await getAllAdressShipping(userId);
+
+    res.status(200).json({
+      success: true,
+      data: addresses,
+      message: 'Lấy danh sách địa chỉ thành công',
+    });
+  } catch (err) {
+    console.error('Lỗi khi lấy danh sách địa chỉ:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi server khi lấy địa chỉ',
+    });
+  }
+};
 
 
 
@@ -325,16 +339,17 @@ const getAllCartAPI = async (req, res) => {
 //=======Controller đơn hàng =====///
 
 const placeOrderFromCartAPI = async (req, res) => {
-  const { userId, description } = req.body;
-  if (!userId) {
+  const { userId, diaChiId, description } = req.body;
+
+  if (!userId || !diaChiId) {
     return res.status(400).json({
       success: false,
-      message: 'Thiếu thông tin userId'
+      message: 'Thiếu userId hoặc diaChiId'
     });
   }
 
   try {
-    const result = await placeOrderFromCart(userId, description || '');
+    const result = await placeOrderFromCart(userId, diaChiId, description || '');
     res.json({
       success: true,
       message: 'Đặt hàng từ giỏ thành công',
@@ -348,6 +363,7 @@ const placeOrderFromCartAPI = async (req, res) => {
     });
   }
 };
+
 
 const placeOrderAPI = async (req, res) => {
   const { userId, items, note } = req.body;
@@ -517,6 +533,6 @@ const getRevenueByYearAPI = async (req, res) => {
 module.exports = {getProducts,getTopSelling,checkUser,getUserRoleController,register,getUserAPI,
   getAllUsersAPI,addProductAPI,getProductDetailAPI,placeOrderAPI,listAllOrders,updateOrderStatus,addCartAPI,
   placeOrderFromCartAPI,listAllStatusAPI,getAllCartAPI,getUserIdAPI,getRevenueByDateAPI,
-  getRevenueByMonthAPI,getRevenueByYearAPI, updateProductAPI,deleteProductAPI,addShippingAddressAPI
+  getRevenueByMonthAPI,getRevenueByYearAPI, updateProductAPI,deleteProductAPI,addShippingAddressAPI,getAllAdressShippingAPI
 }
 

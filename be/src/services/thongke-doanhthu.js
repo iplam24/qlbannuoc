@@ -17,12 +17,13 @@ const getRevenueByMonth = async (month, year) => {
   try {
     const [result] = await connection.promise().query(
       `SELECT 
-        DATE_FORMAT(ngay, '%Y-%m') AS thang,
-        SUM(doanh_thu) AS tong_doanh_thu,
-        SUM(so_luong_don_hang_hoan_thanh) AS tong_don_hang
+        DATE(ngay) AS ngay,
+        SUM(doanh_thu) AS doanh_thu,
+        SUM(so_luong_don_hang_hoan_thanh) AS don
        FROM thong_ke_doanh_thu_ngay
        WHERE YEAR(ngay) = ? AND MONTH(ngay) = ?
-       GROUP BY thang`,
+       GROUP BY DATE(ngay)
+       ORDER BY ngay`,
       [year, month]
     );
     return result;
@@ -31,16 +32,18 @@ const getRevenueByMonth = async (month, year) => {
     throw err;
   }
 };
+
 const getRevenueByYear = async (year) => {
   try {
     const [result] = await connection.promise().query(
       `SELECT 
-        YEAR(ngay) AS nam,
-        SUM(doanh_thu) AS tong_doanh_thu,
-        SUM(so_luong_don_hang_hoan_thanh) AS tong_don_hang
+        MONTH(ngay) AS thang,
+        SUM(doanh_thu) AS doanh_thu,
+        SUM(so_luong_don_hang_hoan_thanh) AS don
        FROM thong_ke_doanh_thu_ngay
        WHERE YEAR(ngay) = ?
-       GROUP BY nam`,
+       GROUP BY MONTH(ngay)
+       ORDER BY thang`,
       [year]
     );
     return result;
@@ -49,5 +52,6 @@ const getRevenueByYear = async (year) => {
     throw err;
   }
 };
+
 
 module.exports={getRevenueByDate, getRevenueByMonth, getRevenueByYear}

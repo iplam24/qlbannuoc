@@ -41,13 +41,13 @@ const AdminFooter = () => {
         <Text style={styles.footerLabel}>Ưu đãi</Text>
       </TouchableOpacity>
           <TouchableOpacity style={styles.footerItem} onPress={()=>{
-
+            navigation.navigate("Statistics");
       }}>
         <Ionicons name="bar-chart-outline" size={22} color="#1f6f8b" />
         <Text style={styles.footerLabel}>Thống kê</Text>
       </TouchableOpacity>
        <TouchableOpacity style={styles.footerItem} onPress={()=>{
-
+          navigation.navigate("Statistics");
       }}>
         <Ionicons name="settings-outline" size={22} color="#1f6f8b" />
         <Text style={styles.footerLabel}>Cài đặt</Text>
