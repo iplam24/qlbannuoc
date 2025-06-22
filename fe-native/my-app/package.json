@@ -19,7 +19,7 @@
     "cli": "1.0.1",
     "dotenv": "16.5.0",
     "eas": "0.1.0",
-    "expo": "53.0.9",
+    "expo": "^53.0.9",
     "expo-camera": "~16.1.8",
     "expo-image-picker": "16.1.4",
     "expo-linear-gradient": "14.1.4",

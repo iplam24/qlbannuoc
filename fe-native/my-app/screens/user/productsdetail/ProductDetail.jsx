@@ -159,8 +159,6 @@ export default function ProductDetail() {
           <FontAwesome name="cart-plus" size={20} color="white" />
           <Text style={styles.buttonText}>Giỏ hàng</Text>
         </TouchableOpacity>
-
-
       </View>
     </View>
   );

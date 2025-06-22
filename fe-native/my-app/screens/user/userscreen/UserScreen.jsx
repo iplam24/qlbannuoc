@@ -106,10 +106,14 @@ export default function UserScreen({ navigation }) {
                 {/* Tùy chọn tài khoản */}
                 <View style={styles.optionsContainer}>
                     <Text style={styles.optionsTitle}>Tài khoản</Text>
-                    <TouchableOpacity style={styles.optionItem}>
+                    <TouchableOpacity
+                        style={styles.optionItem}
+                        onPress={() => navigation.navigate('InforScreen')}
+                        >
                         <Ionicons name="settings-outline" size={22} color="#4a5568" />
                         <Text style={styles.optionText}>Cài đặt tài khoản</Text>
                     </TouchableOpacity>
+
                     <TouchableOpacity style={styles.optionItem}>
                         <Ionicons name="notifications-outline" size={22} color="#4a5568" />
                         <Text style={styles.optionText}>Thông báo</Text>

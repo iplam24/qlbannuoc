@@ -110,7 +110,7 @@ export const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#e91e63',
+    backgroundColor: '#1f6f8b',
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',

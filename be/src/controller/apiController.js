@@ -534,7 +534,8 @@ const getRevenueByYearAPI = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
-
+//===============Sửa thông tin =================//
+  
 module.exports = {getProducts,getTopSelling,checkUser,getUserRoleController,register,getUserAPI,
   getAllUsersAPI,addProductAPI,getProductDetailAPI,placeOrderAPI,listAllOrders,updateOrderStatus,addCartAPI,
   placeOrderFromCartAPI,listAllStatusAPI,getAllCartAPI,getUserIdAPI,getRevenueByDateAPI,

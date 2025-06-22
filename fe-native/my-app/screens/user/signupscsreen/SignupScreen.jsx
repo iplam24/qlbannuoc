@@ -7,6 +7,9 @@ import { API_URL } from '@env';
 
 export default function SignupScreen({ navigation }) {
     const [username, setUsername] = useState('');
+    const [hoTen, setHoTen] = useState('');
+    const [email, setEmail] = useState('');
+    const [sdt, setSDT] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -54,7 +57,12 @@ export default function SignupScreen({ navigation }) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ ten_tai_khoan: username.trim().toLowerCase(), mat_khau: password }),
+                body: JSON.stringify({ 
+                    ten_tai_khoan: username.trim().toLowerCase(),
+                    ho_ten: hoTen.trim(),
+                    email: email.trim().toLowerCase(),
+                    so_dien_thoai: sdt.trim(), 
+                    mat_khau: password }),
             });
 
             const data = await response.json();
@@ -83,9 +91,30 @@ export default function SignupScreen({ navigation }) {
 
                 <TextInput
                     style={styles.input}
-                    placeholder="Tên đăng nhập"
+                    placeholder="Tên tài khoản"
                     value={username}
                     onChangeText={setUsername}
+                    placeholderTextColor="#888"
+                />
+                 <TextInput
+                    style={styles.input}
+                    placeholder="Họ và tên"
+                    value={hoTen}
+                    onChangeText={setHoTen}
+                    placeholderTextColor="#888"
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholderTextColor="#888"
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Số điện thoại"
+                    value={sdt}
+                    onChangeText={setSDT}
                     placeholderTextColor="#888"
                 />
 

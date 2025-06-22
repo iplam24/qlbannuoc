@@ -15,6 +15,7 @@ import UserManagementScreen from './screens/admin/usermanagescreen/UserManagemen
 import OrderManagementScreen from './screens/admin/oderadminscreen/OrderManagementScreen';
 import CartScreen from './screens/user/cartscreen/CartScreen';
 import StatisticsScreen from './screens/admin/statisticsscreen/StatisticsScreen';
+import InforScreen from './screens/user/editscreen/InforScreen';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -54,7 +55,7 @@ useEffect(() => {
         <Stack.Screen name="UserManage" component={UserManagementScreen} />
         <Stack.Screen name="OrderManage" component={OrderManagementScreen} />
         <Stack.Screen name="Statistics" component={StatisticsScreen} />
-
+        <Stack.Screen name="InforScreen" component={InforScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
