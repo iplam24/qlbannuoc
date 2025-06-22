@@ -14,7 +14,7 @@ router.get("/sanpham",getProducts);//Lay ra toan bo danh sach san pham
 router.get("/topluotban",getTopSelling);//Lay ra top luot ban
 router.get("/getproductdetail/:id",getProductDetailAPI);
 router.post('/themsanpham', upload.single('img'), addProductAPI);
-router.patch('/products/:id', updateProductAPI);
+router.patch('/products/:id',upload.single('img'), updateProductAPI);
 router.delete('/products/:id', deleteProductAPI);
 
 

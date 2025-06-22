@@ -65,34 +65,36 @@ const getProductDetailAPI = async (req, res) => {
 const updateProductAPI = async (req, res) => {
   try {
     const { id } = req.params;
-    const { ten_san_pham, gia, luot_ban, img } = req.body;
+    const { ten_san_pham, gia, luot_ban } = req.body;
 
-    // Lấy ảnh cũ trước
     const [oldData] = await getproductDetail(id);
     const oldImg = oldData?.img;
 
     let result;
-    if (img && img.trim() !== '' && img !== oldImg) {
-      // Nếu có ảnh mới và khác ảnh cũ → xoá ảnh cũ
+
+
+    if (req.file) {
+      const filename = req.file.filename;
+
       const oldPath = path.join(__dirname, '..', 'public', oldImg);
       if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
 
-      result = await updateProductWithImage(id, ten_san_pham, gia, luot_ban, img);
+      const imgPath = `/upload/${filename}`;
+      result = await updateProductWithImage(id, ten_san_pham, gia, luot_ban, imgPath);
     } else {
       result = await updateProductWithoutImage(id, ten_san_pham, gia, luot_ban);
     }
 
-    res.json({ success: true, message: 'Sửa sản phẩm thành công', result });
+    res.json({ success: true, message: 'Sửa sản phẩm thành công!', result });
   } catch (err) {
-    console.error('❗ Lỗi API sửa sản phẩm:', err);
+    console.error('Lỗi API sửa sản phẩm:', err);
     res.status(500).json({ success: false, message: 'Sửa sản phẩm thất bại' });
   }
 };
-
 const deleteProductAPI = async (req, res) => {
   try {
     const { id } = req.params;
-
+    console.log("Xoá sản phẩm");
     // Lấy ảnh để xoá file
     const [data] = await getproductDetail(id);
     const imgPath = path.join(__dirname, '..', 'public', data?.img);

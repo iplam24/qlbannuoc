@@ -42,49 +42,85 @@ export default function ProductManagementScreen() {
   };
 
   const handleEdit = (product) => {
+    const imgURL = product.img.startsWith('http') || product.img.startsWith('file://')
+      ? product.img
+      : `${API_URL}${product.img}`;
+
     setEditingProduct(product);
     setFormData({
       ten_san_pham: product.ten_san_pham,
       gia: product.gia.toString(),
       luot_ban: product.luot_ban.toString(),
-      img: product.img
+      img: imgURL // gán ảnh đúng định dạng URI
     });
     setModalVisible(true);
   };
 
-  const handleDelete = async (id) => {
-    const res = await fetch(`${API_URL}/sanpham/${id}`, { method: 'DELETE' });
-    if (res.ok) {
-      fetchSanPham();
-    } else {
-      Alert.alert('Lỗi', 'Không xoá được sản phẩm');
-    }
+
+
+  const handleDelete = (id) => {
+    Alert.alert(
+      "Xác nhận xoá",
+      "Bạn có chắc muốn xoá sản phẩm này không?",
+      [
+        {
+          text: "Huỷ",
+          style: "cancel",
+        },
+        {
+          text: "Xoá",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const res = await fetch(`${API_URL}/products/${id}`, {
+                method: 'DELETE',
+              });
+              if (res.ok) {
+                Alert.alert("Thành công", "Xoá sản phẩm thành công! ");
+                fetchSanPham(); // reload lại danh sách
+              } else {
+                Alert.alert('Lỗi', 'Không xoá được sản phẩm');
+              }
+            } catch (error) {
+              console.error("Lỗi xoá sản phẩm:", error);
+              Alert.alert("Lỗi", "Đã xảy ra lỗi khi xoá sản phẩm");
+            }
+          },
+        },
+      ]
+    );
   };
 
+
   const handleSave = async () => {
-    const method = editingProduct ? 'PUT' : 'POST';
-    const url = editingProduct ? `${API_URL}/sanpham/${editingProduct.id}` : `${API_URL}/themsanpham`;
+    const isEditing = !!editingProduct;
+    const url = isEditing
+      ? `${API_URL}/products/${editingProduct.id}`
+      : `${API_URL}/themsanpham`;
+
+    const method = isEditing ? 'PATCH' : 'POST';
 
     const form = new FormData();
     form.append('ten_san_pham', formData.ten_san_pham);
     form.append('gia', formData.gia);
     form.append('luot_ban', formData.luot_ban);
 
-    if (formData.img && !formData.img.startsWith('http')) {
+    const isLocalImage = formData.img && formData.img.startsWith('file://');
+    if (isLocalImage) {
       const filename = formData.img.split('/').pop();
       const match = /\.(\w+)$/.exec(filename);
       const type = match ? `image/${match[1]}` : `image`;
+
       form.append('img', {
         uri: formData.img,
         name: filename,
-        type: type
+        type,
       });
     }
 
     try {
       const res = await fetch(url, {
         method,
-        // KHÔNG SET CONTENT-TYPE, để fetch tự thêm boundary nha anh
         body: form,
       });
 
@@ -93,13 +129,16 @@ export default function ProductManagementScreen() {
         setModalVisible(false);
         setFormData({ ten_san_pham: '', gia: '', luot_ban: '', img: '' });
         setEditingProduct(null);
+        Alert.alert("Thành công", isEditing ? "Đã sửa sản phẩm!" : "Đã thêm sản phẩm!");
       } else {
-        Alert.alert('Lỗi', 'Không lưu được sản phẩm');
+        Alert.alert("Lỗi", "Không lưu được sản phẩm");
       }
     } catch (error) {
-      Alert.alert('Lỗi', 'Không thể kết nối tới server');
+      console.error("Lỗi lưu sản phẩm:", error);
+      Alert.alert("Lỗi", "Không thể kết nối tới máy chủ");
     }
   };
+
 
 
   const pickImage = async () => {
@@ -202,10 +241,16 @@ export default function ProductManagementScreen() {
             </TouchableOpacity>
 
             {formData.img ? (
-              <Image source={{ uri: formData.img }} style={styles.selectedImage} />
+              <Image
+                source={{ uri: formData.img }}
+                style={styles.selectedImage}
+                resizeMode="cover"
+              />
             ) : (
               <Text style={styles.noImageText}>Chưa có ảnh</Text>
             )}
+
+
 
             <View style={styles.modalActions}>
               <TouchableOpacity
