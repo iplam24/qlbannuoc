@@ -181,11 +181,11 @@ const getUserInforId=async(userid)=>{
   return user;
 }
 // Đăng ký tài khoản người dùng
-const registerUser = async (tenTaiKhoan, matKhau) => {
+const registerUser = async (tenTaiKhoan, matKhau,hoten,email,so_dien_thoai) => {
   try {
     const [result] = await connection.promise().query(
-      'INSERT INTO nguoi_dung (ten_tai_khoan, mat_khau, id_vai_tro) VALUES (?, ?, ?)',
-      [tenTaiKhoan, matKhau, 3] 
+      'INSERT INTO nguoi_dung (ten_tai_khoan, mat_khau,ho_ten,email,so_dien_thoai, id_vai_tro) VALUES (?, ?, ?,?,?,?)',
+      [tenTaiKhoan, matKhau,hoten,email,so_dien_thoai, 3] 
     );
     return result;
   } catch (err) {

@@ -172,15 +172,20 @@ const getUserIdAPI=async(req,res)=>{
 }
 
 const register = async (req, res) => {
+  console.log(req.body);
   let ten_tai_khoan = req.body.ten_tai_khoan;
+  let ho_ten = req.body.ho_ten;
+  const email = req.body.email;
+  const so_dien_thoai= req.body.so_dien_thoai;
   const mat_khau = req.body.mat_khau;
+  
   try {
     const userExists = await checkUserExistDB(ten_tai_khoan);
     if (userExists) {
       return res.status(400).json({ success: false, message: 'Tên đăng nhập đã tồn tại!' });
     }
     const hashedPassword = await bcrypt.hash(mat_khau, 10);
-    await registerUser(ten_tai_khoan, hashedPassword);
+    await registerUser(ten_tai_khoan, hashedPassword,ho_ten,email,so_dien_thoai);
     console.log(ten_tai_khoan+" - đăng ký tài khoản thành công!");
     res.status(201).json({ success: true, message: 'Đăng ký thành công!' });
   } catch (err) {
