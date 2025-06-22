@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, SafeAreaView, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { styles } from './SignupScreenCss';
@@ -57,12 +57,13 @@ export default function SignupScreen({ navigation }) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     ten_tai_khoan: username.trim().toLowerCase(),
                     ho_ten: hoTen.trim(),
                     email: email.trim().toLowerCase(),
-                    so_dien_thoai: sdt.trim(), 
-                    mat_khau: password }),
+                    so_dien_thoai: sdt.trim(),
+                    mat_khau: password
+                }),
             });
 
             const data = await response.json();
@@ -81,93 +82,97 @@ export default function SignupScreen({ navigation }) {
     };
 
     return (
+
         <SafeAreaView style={styles.container}>
-            <View style={styles.loginContainer}>
-                <TouchableOpacity style={styles.goBackButton} onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back" size={24} color="#333" />
-                </TouchableOpacity>
-                <Ionicons name="person-add-outline" size={90} color="#1f6f8b" style={styles.userIcon} />
-                <Text style={styles.title}>Đăng ký tài khoản</Text>
+            <ScrollView>
+                <View style={styles.loginContainer}>
+                    <TouchableOpacity style={styles.goBackButton} onPress={() => navigation.goBack()}>
+                        <Ionicons name="arrow-back" size={24} color="#333" />
+                    </TouchableOpacity>
+                    <Ionicons name="person-add-outline" size={90} color="#1f6f8b" style={styles.userIcon} />
+                    <Text style={styles.title}>Đăng ký tài khoản</Text>
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Tên tài khoản"
-                    value={username}
-                    onChangeText={setUsername}
-                    placeholderTextColor="#888"
-                />
-                 <TextInput
-                    style={styles.input}
-                    placeholder="Họ và tên"
-                    value={hoTen}
-                    onChangeText={setHoTen}
-                    placeholderTextColor="#888"
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Email"
-                    value={email}
-                    onChangeText={setEmail}
-                    placeholderTextColor="#888"
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Số điện thoại"
-                    value={sdt}
-                    onChangeText={setSDT}
-                    placeholderTextColor="#888"
-                />
-
-                {/* Mật khẩu */}
-                <View style={styles.passwordContainer}>
                     <TextInput
                         style={styles.input}
-                        placeholder="Mật khẩu"
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry={!showPassword}
+                        placeholder="Tên tài khoản"
+                        value={username}
+                        onChangeText={setUsername}
                         placeholderTextColor="#888"
                     />
-                    <TouchableOpacity
-                        style={styles.showPasswordButton}
-                        onPress={() => setShowPassword(!showPassword)}
-                    >
-                        <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={22} color="#888" />
-                    </TouchableOpacity>
-                </View>
-
-                {/* Xác nhận mật khẩu */}
-                <View style={styles.passwordContainer}>
                     <TextInput
                         style={styles.input}
-                        placeholder="Xác nhận mật khẩu"
-                        value={confirmPassword}
-                        onChangeText={setConfirmPassword}
-                        secureTextEntry={!showConfirmPassword}
+                        placeholder="Họ và tên"
+                        value={hoTen}
+                        onChangeText={setHoTen}
                         placeholderTextColor="#888"
                     />
-                    <TouchableOpacity
-                        style={styles.showPasswordButton}
-                        onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                    >
-                        <Ionicons name={showConfirmPassword ? 'eye-off' : 'eye'} size={22} color="#888" />
-                    </TouchableOpacity>
-                </View>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Email"
+                        value={email}
+                        onChangeText={setEmail}
+                        placeholderTextColor="#888"
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Số điện thoại"
+                        value={sdt}
+                        onChangeText={setSDT}
+                        placeholderTextColor="#888"
+                    />
 
-                <TouchableOpacity style={styles.loginButton} onPress={handleRegister}>
-                    <Text style={styles.loginButtonText}>Đăng ký</Text>
-                </TouchableOpacity>
+                    {/* Mật khẩu */}
+                    <View style={styles.passwordContainer}>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Mật khẩu"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry={!showPassword}
+                            placeholderTextColor="#888"
+                        />
+                        <TouchableOpacity
+                            style={styles.showPasswordButton}
+                            onPress={() => setShowPassword(!showPassword)}
+                        >
+                            <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={22} color="#888" />
+                        </TouchableOpacity>
+                    </View>
 
-                <View style={styles.signUpContainer}>
-                    <Text style={styles.signUpText}>Đã có tài khoản?</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                        <Text style={styles.signUpLink}> Đăng nhập ngay.</Text>
+                    {/* Xác nhận mật khẩu */}
+                    <View style={styles.passwordContainer}>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Xác nhận mật khẩu"
+                            value={confirmPassword}
+                            onChangeText={setConfirmPassword}
+                            secureTextEntry={!showConfirmPassword}
+                            placeholderTextColor="#888"
+                        />
+                        <TouchableOpacity
+                            style={styles.showPasswordButton}
+                            onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                            <Ionicons name={showConfirmPassword ? 'eye-off' : 'eye'} size={22} color="#888" />
+                        </TouchableOpacity>
+                    </View>
+
+                    <TouchableOpacity style={styles.loginButton} onPress={handleRegister}>
+                        <Text style={styles.loginButtonText}>Đăng ký</Text>
                     </TouchableOpacity>
+
+                    <View style={styles.signUpContainer}>
+                        <Text style={styles.signUpText}>Đã có tài khoản?</Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                            <Text style={styles.signUpLink}> Đăng nhập ngay.</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
-            <View style={styles.copyrightContainer}>
-                <Text style={styles.copyright}>© 2025 VNUA Tea & Cafe</Text>
-            </View>
+                <View style={styles.copyrightContainer}>
+                    <Text style={styles.copyright}>© 2025 VNUA Tea & Cafe</Text>
+                </View>
+            </ScrollView >
         </SafeAreaView>
+
     );
 }

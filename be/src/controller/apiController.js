@@ -7,7 +7,7 @@ const {getAllProducts,getTopSellingProducts,checkUserExists,getUserRole, registe
   getAllUsers,addProduct,getproductDetail,createOrder, addOrderDetail,updateOrderStatusDB,getAllOrders,getOrderDetails,addToCart,placeOrderFromCart,getAllOrderStatus
 ,getAllCart,getUserInforId,updateProductWithImage,
   updateProductWithoutImage,
-  deleteProduct,getAllAdressShipping,addShippingAddress
+  deleteProduct,getAllAdressShipping,addShippingAddress,deleteAddress,updateAvatar
 } = require('../services/CRUD-services');
 
 const {getRevenueByDate, getRevenueByMonth, getRevenueByYear} = require('../services/thongke-doanhthu');
@@ -259,7 +259,71 @@ const getAllAdressShippingAPI = async (req, res) => {
   }
 };
 
+const deleteAddressAPI = async (req, res) => {
+  const addressId = req.params.id;
 
+  try {
+    if (!addressId) {
+      return res.status(400).json({ success: false, message: 'Thiếu ID địa chỉ' });
+    }
+
+    const result = await deleteAddress(addressId); 
+
+    if (result.affectedRows > 0) {
+      return res.status(200).json({ success: true, message: 'Xoá địa chỉ thành công' });
+    } else {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy địa chỉ để xoá' });
+    }
+  } catch (err) {
+    console.error('Lỗi khi xoá địa chỉ:', err);
+    return res.status(500).json({ success: false, message: 'Lỗi server khi xoá địa chỉ' });
+  }
+};
+
+
+
+
+const updateAvatarAPI = async (req, res) => {
+  const userId = req.body.userId;
+  const file = req.file;
+  const oldAvatarPath = req.body.oldAvatar;
+
+  if (!userId || !file) {
+    return res.status(400).json({ success: false, message: 'Thiếu userId hoặc avatar' });
+  }
+
+  const imagePath = `/upload/${file.filename}`;
+  
+
+  try {
+    if (oldAvatarPath && oldAvatarPath !== '/upload/avatar2.png') {
+      const fullOldPath = path.join(__dirname, '../public', oldAvatarPath);
+
+      if (fs.existsSync(fullOldPath)) {
+        fs.unlinkSync(fullOldPath);
+        console.log('Đã xoá ảnh cũ thành công khi cập nhật avatar mới cho user: ' ,userId);
+      } else {
+        console.warn('File ảnh cũ không tồn tại:', fullOldPath);
+      }
+    }
+
+    // ✅ Cập nhật database
+    const result = await updateAvatar(imagePath, userId);
+
+    if (result.affectedRows > 0) {
+      return res.status(200).json({
+        success: true,
+        message: 'Avatar đã được cập nhật',
+        img: imagePath
+      });
+    } else {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy user' });
+    }
+  } catch (error) {
+    console.error('Lỗi update avatar:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi server khi cập nhật avatar' });
+  }
+};
 
 
 
@@ -539,6 +603,6 @@ const getRevenueByYearAPI = async (req, res) => {
 module.exports = {getProducts,getTopSelling,checkUser,getUserRoleController,register,getUserAPI,
   getAllUsersAPI,addProductAPI,getProductDetailAPI,placeOrderAPI,listAllOrders,updateOrderStatus,addCartAPI,
   placeOrderFromCartAPI,listAllStatusAPI,getAllCartAPI,getUserIdAPI,getRevenueByDateAPI,
-  getRevenueByMonthAPI,getRevenueByYearAPI, updateProductAPI,deleteProductAPI,addShippingAddressAPI,getAllAdressShippingAPI
+  getRevenueByMonthAPI,getRevenueByYearAPI, updateProductAPI,deleteProductAPI,addShippingAddressAPI,getAllAdressShippingAPI,deleteAddressAPI,updateAvatarAPI
 }
 

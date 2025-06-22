@@ -224,6 +224,32 @@ const getAllAdressShipping= async(userId)=>{
     }
 }
 
+const deleteAddress = async (addressId) => {
+  try {
+    const [result] = await connection.promise().query(
+      `UPDATE dia_chi_nhan_hang SET da_xoa = 1 WHERE id = ?`, [addressId]
+    );
+    return result;
+  } catch (error) {
+    console.error('Lỗi khi xoá địa chỉ:', error);
+    throw error;
+  }
+};
+
+const updateAvatar = async (img, userId) => {
+  try {
+    const [result] = await connection
+      .promise()
+      .query(`UPDATE nguoi_dung SET img = ? WHERE id = ?`, [img, userId]);
+
+    return result; 
+  } catch (error) {
+    console.error('Lỗi khi cập nhật avatar:', error);
+    throw error;
+  }
+};
+
+
 
 //===============CRUD giỏ hàng============////
 const addToCart = async (userId, productId, quantity = 1) => {
@@ -513,5 +539,5 @@ const updateOrderStatusDB = async (orderId, statusId) => {
 module.exports = {getAllProducts,getTopSellingProducts,checkUserExists,getUserRole,registerUser,checkUserExistDB,getUser,
   getAllUsers,addProduct,getproductDetail,createOrder,addOrderDetail,updateRevenueStats,getAllOrders,getOrderDetails,updateOrderStatusDB,addToCart,
   placeOrderFromCart,getAllOrderStatus,getAllCart,getUserInforId,updateProductWithImage,
-  updateProductWithoutImage,deleteProduct,addShippingAddress,getAllAdressShipping
+  updateProductWithoutImage,deleteProduct,addShippingAddress,getAllAdressShipping,deleteAddress,updateAvatar
 };
