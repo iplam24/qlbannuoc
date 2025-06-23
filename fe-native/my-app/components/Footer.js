@@ -34,6 +34,13 @@ const Footer = () => {
         <Text style={styles.footerLabel}>Ưu đãi</Text>
       </TouchableOpacity>
 
+       <TouchableOpacity style={styles.footerItem} onPress={()=>{
+        navigation.navigate('OrderScreen', );
+      }}>
+        <Ionicons name="cube-outline" size={22} color="#1f6f8b" />
+        <Text style={styles.footerLabel}>Đơn hàng</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.footerItem} onPress={()=>{
         navigation.navigate('Cart');
       }}>
