@@ -7,8 +7,8 @@ import { API_URL } from '@env';
 import { styles } from './OrderScreencss';
 import AdminFooter from '../../../components/Footer';
 import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Hàm fetch chuẩn hóa
 const fetchDataSafe = async (url) => {
   try {
     const res = await fetch(url);
@@ -28,6 +28,7 @@ const fetchDataSafe = async (url) => {
 };
 
 export default function OrderManagementScreen() {
+  const [userId, setUserId] = useState(null);
   const [orders, setOrders] = useState([]);
   const [statusList, setStatusList] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -40,22 +41,38 @@ export default function OrderManagementScreen() {
   const [filteredOrders, setFilteredOrders] = useState([]);
 
   useEffect(() => {
-    fetchOrders();
+    const getUserId = async () => {
+      try {
+        const storedId = await AsyncStorage.getItem('userId');
+        if (storedId) {
+          setUserId(storedId);
+        }
+      } catch (e) {
+        console.error('Lỗi lấy userId: ', e);
+      }
+    };
+    getUserId();
     fetchStatuses();
   }, []);
 
   useEffect(() => {
+    if (userId) {
+      fetchOrders();
+    }
+  }, [userId]);
+
+  useEffect(() => {
     const filtered = orders.filter(order =>
       order.nguoi_nhan?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.sdt_nguoi_nhan?.includes(searchTerm) ||
-    order.id?.toString().includes(searchTerm) ||
-    order.ten_trang_thai?.toLowerCase().includes(searchTerm.toLowerCase())
+      order.sdt_nguoi_nhan?.includes(searchTerm) ||
+      order.id?.toString().includes(searchTerm) ||
+      order.ten_trang_thai?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredOrders(filtered);
   }, [searchTerm, orders]);
 
   const fetchOrders = async () => {
-    const data = await fetchDataSafe(`${API_URL}/getAllorders`);
+    const data = await fetchDataSafe(`${API_URL}/userOrder/${userId}`);
     setOrders(data);
     setFilteredOrders(data);
   };
@@ -112,12 +129,21 @@ export default function OrderManagementScreen() {
     }
   };
 
+  const handleRequestCancel = (order) => {
+    Alert.alert('Yêu cầu huỷ đơn', `Đơn hàng #${order.id} đang xử lý. Gửi yêu cầu huỷ thành công!`);
+    // TODO: Gọi API yêu cầu huỷ nếu có
+  };
+
+  const handleConfirmReceived = (order) => {
+    Alert.alert('Đã nhận hàng', `Cảm ơn bạn đã xác nhận đơn hàng #${order.id}`);
+    // TODO: Gọi API cập nhật trạng thái thành "Hoàn thành"
+  };
 
   const formatDate = (dateStr) => {
     const d = new Date(dateStr);
     return d.toLocaleString();
   };
-  
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Quản lý đơn hàng 📦</Text>
@@ -153,18 +179,38 @@ export default function OrderManagementScreen() {
               </View>
 
               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+                {/* Nút huỷ đơn */}
+                {order.ten_trang_thai === 'Đang chờ xác nhận' && (
+                  <TouchableOpacity onPress={() => handleDelete(order.id)} style={styles.iconBtn}>
+                    <Ionicons name="trash-outline" size={22} color="red" />
+                    <Text style={{ fontSize: 12 }}>Huỷ</Text>
+                  </TouchableOpacity>
+                )}
+
+                {/* Nút yêu cầu huỷ */}
+                {order.ten_trang_thai === 'Đang xử lý' && (
+                  <TouchableOpacity onPress={() => handleRequestCancel(order)} style={styles.iconBtn}>
+                    <Ionicons name="alert-circle-outline" size={22} color="orange" />
+                    <Text style={{ fontSize: 12 }}>Yêu cầu huỷ</Text>
+                  </TouchableOpacity>
+                )}
+
+                {/* Nút xác nhận đã nhận */}
+                {order.ten_trang_thai === 'Giao hàng thành công' && (
+                  <TouchableOpacity onPress={() => handleConfirmReceived(order)} style={styles.iconBtn}>
+                    <Ionicons name="checkmark-done-outline" size={22} color="green" />
+                    <Text style={{ fontSize: 12 }}>Đã nhận</Text>
+                  </TouchableOpacity>
+                )}
+
+                {/* Nút sửa (nếu chưa hoàn thành) */}
                 {order.ten_trang_thai !== 'Hoàn thành' && (
-                  <>
-                    <TouchableOpacity onPress={() => handleEdit(order)} style={styles.iconBtn}>
-                      <Ionicons name="create-outline" size={22} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDelete(order.id)} style={styles.iconBtn}>
-                      <Ionicons name="trash-outline" size={22} color="red" />
-                    </TouchableOpacity>
-                  </>
+                  <TouchableOpacity onPress={() => handleEdit(order)} style={styles.iconBtn}>
+                    <Ionicons name="create-outline" size={22} />
+                    <Text style={{ fontSize: 12 }}>Sửa</Text>
+                  </TouchableOpacity>
                 )}
               </View>
-
             </View>
           ))
         ) : (
@@ -194,7 +240,6 @@ export default function OrderManagementScreen() {
                 />
               ))}
             </Picker>
-
 
             <View style={styles.modalActions}>
               <TouchableOpacity

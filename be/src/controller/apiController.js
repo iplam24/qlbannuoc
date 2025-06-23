@@ -7,7 +7,7 @@ const {getAllProducts,getTopSellingProducts,checkUserExists,getUserRole, registe
   getAllUsers,addProduct,getproductDetail,createOrder, addOrderDetail,updateOrderStatusDB,getAllOrders,getOrderDetails,addToCart,placeOrderFromCart,getAllOrderStatus
 ,getAllCart,getUserInforId,updateProductWithImage,
   updateProductWithoutImage,
-  deleteProduct,getAllAdressShipping,addShippingAddress,deleteAddress,updateAvatar
+  deleteProduct,getAllAdressShipping,addShippingAddress,deleteAddress,updateAvatar,getAllOrderuser
 } = require('../services/CRUD-services');
 
 const {getRevenueByDate, getRevenueByMonth, getRevenueByYear} = require('../services/thongke-doanhthu');
@@ -519,7 +519,33 @@ const listAllOrders = async (req, res) => {
     });
   }
 };
+const listAllOrderUserAPI = async (req, res) => {
+  const userId = req.params.userId;
+  console.log(userId);
+  try {
+    // Lấy danh sách đơn hàng
+    const orders = await getAllOrderuser(userId);
+    console.log(orders);
+    // Lấy chi tiết cho từng đơn hàng
+    const ordersWithDetails = await Promise.all(
+      orders.map(async (order) => {
+        const details = await getOrderDetails(order.id);
+        return { ...order, chi_tiet: details };
+      })
+    );
 
+    res.json({
+      success: true,
+      data: ordersWithDetails
+    });
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách đơn hàng:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi hệ thống khi lấy danh sách đơn hàng'
+    });
+  }
+};
 const listAllStatusAPI = async (req, res) => {
   try {
     const statuses = await getAllOrderStatus();
@@ -605,6 +631,6 @@ const getRevenueByYearAPI = async (req, res) => {
 module.exports = {getProducts,getTopSelling,checkUser,getUserRoleController,register,getUserAPI,
   getAllUsersAPI,addProductAPI,getProductDetailAPI,placeOrderAPI,listAllOrders,updateOrderStatus,addCartAPI,
   placeOrderFromCartAPI,listAllStatusAPI,getAllCartAPI,getUserIdAPI,getRevenueByDateAPI,
-  getRevenueByMonthAPI,getRevenueByYearAPI, updateProductAPI,deleteProductAPI,addShippingAddressAPI,getAllAdressShippingAPI,deleteAddressAPI,updateAvatarAPI
+  getRevenueByMonthAPI,getRevenueByYearAPI, updateProductAPI,deleteProductAPI,addShippingAddressAPI,getAllAdressShippingAPI,deleteAddressAPI,updateAvatarAPI,listAllOrderUserAPI
 }
 

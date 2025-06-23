@@ -432,6 +432,33 @@ const getAllOrders = async () => {
     throw err;
   }
 };
+const getAllOrderuser = async (userId) => {
+  try {
+    const [orders] = await connection.promise().query(`
+      SELECT 
+        dh.id,
+        dh.ngay_dat_hang,
+        dh.tong_tien,
+        tth.ten_trang_thai,
+        nd.ho_ten AS ten_nguoi_dat,
+        dcnh.nguoi_nhan,
+        dcnh.so_dien_thoai AS sdt_nguoi_nhan,
+        dcnh.dia_chi AS dia_chi_giao,
+        dh.ghi_chu
+      FROM don_hang dh
+      JOIN nguoi_dung nd ON dh.id_nguoi_dung = nd.id
+      JOIN trang_thai_don_hang tth ON dh.id_trang_thai = tth.id
+      LEFT JOIN dia_chi_nhan_hang dcnh ON dh.id_dia_chi_nhan_hang = dcnh.id
+      WHERE dh.id_nguoi_dung = ?
+      ORDER BY dh.ngay_dat_hang DESC
+    `, [userId]);
+    
+    return orders;
+  } catch (err) {
+    console.error('Lỗi khi lấy danh sách đơn hàng:', err);
+    throw err;
+  }
+};
 
 
 
@@ -539,5 +566,5 @@ const updateOrderStatusDB = async (orderId, statusId) => {
 module.exports = {getAllProducts,getTopSellingProducts,checkUserExists,getUserRole,registerUser,checkUserExistDB,getUser,
   getAllUsers,addProduct,getproductDetail,createOrder,addOrderDetail,updateRevenueStats,getAllOrders,getOrderDetails,updateOrderStatusDB,addToCart,
   placeOrderFromCart,getAllOrderStatus,getAllCart,getUserInforId,updateProductWithImage,
-  updateProductWithoutImage,deleteProduct,addShippingAddress,getAllAdressShipping,deleteAddress,updateAvatar
+  updateProductWithoutImage,deleteProduct,addShippingAddress,getAllAdressShipping,deleteAddress,updateAvatar,getAllOrderuser
 };

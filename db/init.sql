@@ -57,7 +57,7 @@ INSERT INTO
     trang_thai_don_hang (ten_trang_thai)
 VALUES ('Đang chờ xác nhận'),
     ('Đang xử lý'),
-    ('Đang giao hàng'),
+    ('Giao hàng thành công'),
     ('Hoàn thành'),
     ('Đã hủy');
 

@@ -4,7 +4,7 @@ const {getProducts,getTopSelling,checkUser
     ,getUserRoleController, register,getUserAPI
     ,getAllUsersAPI,addProductAPI,deleteProductAPI,getProductDetailAPI,placeOrderAPI,listAllOrders
     ,updateOrderStatus,addCartAPI,placeOrderFromCartAPI,listAllStatusAPI,getAllCartAPI,getUserIdAPI,getRevenueByDateAPI,
-    getRevenueByMonthAPI,getRevenueByYearAPI,updateProductAPI,addShippingAddressAPI,getAllAdressShippingAPI,deleteAddressAPI,updateAvatarAPI
+    getRevenueByMonthAPI,getRevenueByYearAPI,updateProductAPI,addShippingAddressAPI,getAllAdressShippingAPI,deleteAddressAPI,updateAvatarAPI,listAllOrderUserAPI
 }=require('../controller/apiController');
 const router =express.Router();
 
@@ -45,6 +45,7 @@ router.post("/addOrderFromCart",placeOrderFromCartAPI);
 router.get("/getAllorders",listAllOrders); //Lay ra list don hang
 router.put("/updateOrder/:orderId/status",updateOrderStatus);
 router.post("/dathang",placeOrderAPI);
+router.get("/userOrder/:userId",listAllOrderUserAPI);
 
 
 //===========Thống kê doanh thu===///
