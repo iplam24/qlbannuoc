@@ -146,7 +146,7 @@ export default function OrderManagementScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Quản lý đơn hàng 📦</Text>
+      <Text style={styles.title}>Đơn hàng</Text>
 
       <TextInput
         placeholder="Tìm kiếm đơn hàng"

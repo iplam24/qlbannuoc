@@ -1,14 +1,17 @@
 import { StyleSheet } from 'react-native';
+
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f9f9f9',
     },
     loginContainer: {
-        flex: 1,
+        flexGrow: 1,
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 30,
+        paddingTop: 60,
+        paddingBottom: 40,
     },
     goBackButton: {
         position: 'absolute',
@@ -28,23 +31,46 @@ export const styles = StyleSheet.create({
     input: {
         width: '100%',
         paddingVertical: 14,
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
+        fontSize: 16,
+        color: '#333',
         backgroundColor: '#fff',
         borderRadius: 10,
-        marginBottom: 20,
         borderColor: '#ddd',
         borderWidth: 1,
+        marginBottom: 20,
+
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    passwordContainer: {
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        borderColor: '#ddd',
+        borderWidth: 1,
+        marginBottom: 20,
+        paddingHorizontal: 15,
+
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    passwordInput: {
+        flex: 1,
+        paddingVertical: 14,
         fontSize: 16,
         color: '#333',
     },
-    passwordContainer: {
-        position: 'relative',
-        width: '100%',
-    },
     showPasswordButton: {
-        position: 'absolute',
-        right: 15,
-        top: 15,
+        paddingLeft: 10,
     },
     forgotPasswordContainer: {
         width: '100%',
@@ -63,15 +89,15 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start',
     },
     checkbox: {
-        width: 24, // Đảm bảo checkbox đủ rộng
-        height: 24, // Đảm bảo checkbox đủ cao
+        width: 24,
+        height: 24,
         borderRadius: 6,
         borderColor: '#1f6f8b',
-        borderWidth: 2, // Tăng độ dày viền để dễ nhìn
+        borderWidth: 2,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 15,
-        backgroundColor: '#fff', // Màu nền mặc định
+        backgroundColor: '#fff',
     },
     rememberMeLabel: {
         fontSize: 16,
@@ -84,6 +110,15 @@ export const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
         marginBottom: 30,
+
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+        elevation: 3,
+    },
+    loginButtonDisabled: {
+        backgroundColor: '#ccc',
     },
     loginButtonText: {
         color: '#fff',

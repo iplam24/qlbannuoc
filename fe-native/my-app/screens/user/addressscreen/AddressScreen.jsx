@@ -156,7 +156,7 @@ const AddressScreen = () => {
             </View>
 
             <FlatList
-                style={{ marginTop: 50 }}
+                style={{ marginTop: 100 }}
                 data={addresses}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderItem}

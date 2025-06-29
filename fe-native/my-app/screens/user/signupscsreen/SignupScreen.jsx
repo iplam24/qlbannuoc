@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, SafeAreaView, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { styles } from './SignupScreenCss';
 import { API_URL } from '@env';
 
@@ -15,11 +14,8 @@ export default function SignupScreen({ navigation }) {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // Hàm kiểm tra định dạng tên tài khoản và mật khẩu
     const validateInput = () => {
         const normalizedUsername = username.trim().toLowerCase();
-
-        // Kiểm tra nếu người dùng chưa nhập đầy đủ thông tin
         if (!normalizedUsername || !password || !confirmPassword) {
             Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin.');
             return false;
@@ -36,7 +32,6 @@ export default function SignupScreen({ navigation }) {
             return false;
         }
 
-        // Kiểm tra nếu mật khẩu không khớp
         if (password !== confirmPassword) {
             Alert.alert('Lỗi', 'Mật khẩu không trùng khớp.');
             return false;
@@ -46,12 +41,9 @@ export default function SignupScreen({ navigation }) {
     };
 
     const handleRegister = async () => {
-        if (!validateInput()) {
-            return;
-        }
+        if (!validateInput()) return;
 
         try {
-            // Gửi yêu cầu đăng ký tới API
             const response = await fetch(`${API_URL}/dangky`, {
                 method: 'POST',
                 headers: {
@@ -62,7 +54,7 @@ export default function SignupScreen({ navigation }) {
                     ho_ten: hoTen.trim(),
                     email: email.trim().toLowerCase(),
                     so_dien_thoai: sdt.trim(),
-                    mat_khau: password
+                    mat_khau: password,
                 }),
             });
 
@@ -82,9 +74,8 @@ export default function SignupScreen({ navigation }) {
     };
 
     return (
-
         <SafeAreaView style={styles.container}>
-            <ScrollView>
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <View style={styles.loginContainer}>
                     <TouchableOpacity style={styles.goBackButton} onPress={() => navigation.goBack()}>
                         <Ionicons name="arrow-back" size={24} color="#333" />
@@ -124,7 +115,7 @@ export default function SignupScreen({ navigation }) {
                     {/* Mật khẩu */}
                     <View style={styles.passwordContainer}>
                         <TextInput
-                            style={styles.input}
+                            style={styles.passwordInput}
                             placeholder="Mật khẩu"
                             value={password}
                             onChangeText={setPassword}
@@ -142,7 +133,7 @@ export default function SignupScreen({ navigation }) {
                     {/* Xác nhận mật khẩu */}
                     <View style={styles.passwordContainer}>
                         <TextInput
-                            style={styles.input}
+                            style={styles.passwordInput}
                             placeholder="Xác nhận mật khẩu"
                             value={confirmPassword}
                             onChangeText={setConfirmPassword}
@@ -168,11 +159,11 @@ export default function SignupScreen({ navigation }) {
                         </TouchableOpacity>
                     </View>
                 </View>
+
                 <View style={styles.copyrightContainer}>
                     <Text style={styles.copyright}>© 2025 VNUA Tea & Cafe</Text>
                 </View>
-            </ScrollView >
+            </ScrollView>
         </SafeAreaView>
-
     );
 }
