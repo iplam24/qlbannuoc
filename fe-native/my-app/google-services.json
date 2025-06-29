@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "543344523027",
+    "project_id": "vnuacafe",
+    "storage_bucket": "vnuacafe.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:543344523027:android:91fbde6ee222fe45ca4ce6",
+        "android_client_info": {
+          "package_name": "com.iplam24.vnuacafe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAG61cXfqopYxtmyTMseD1PB5uCqrBQKF0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

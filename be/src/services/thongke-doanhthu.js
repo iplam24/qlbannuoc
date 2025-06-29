@@ -53,5 +53,48 @@ const getRevenueByYear = async (year) => {
   }
 };
 
+//====Thông báo====//
+const createNotification = async (id_nguoi_dung, tin_nhan) => {
+  try {
+    const [result] = await connection.promise().query(
+      'INSERT INTO thong_bao (id_nguoi_dung, tin_nhan) VALUES (?, ?)',
+      [id_nguoi_dung, tin_nhan]
+    );
+    return result.insertId;
+  } catch (err) {
+    console.error('Lỗi khi tạo thông báo:', err);
+    throw err;
+  }
+};
 
-module.exports={getRevenueByDate, getRevenueByMonth, getRevenueByYear}
+const getNotificationsByUser = async (id_nguoi_dung) => {
+  try {
+    const [result] = await connection.promise().query(
+      'SELECT * FROM thong_bao WHERE id_nguoi_dung = ? ORDER BY thoi_gian_tao DESC',
+      [id_nguoi_dung]
+    );
+    return result;
+  } catch (err) {
+    console.error('Lỗi khi lấy thông báo:', err);
+    throw err;
+  }
+};
+
+const markNotificationAsRead = async (id) => {
+  try {
+    await connection.promise().query(
+      'UPDATE thong_bao SET da_doc = 1 WHERE id = ?',
+      [id]
+    );
+    return true;
+  } catch (err) {
+    console.error('Lỗi khi đánh dấu đã đọc:', err);
+    throw err;
+  }
+};
+
+module.exports={getRevenueByDate, getRevenueByMonth, getRevenueByYear,
+   createNotification,
+  getNotificationsByUser,
+  markNotificationAsRead
+}

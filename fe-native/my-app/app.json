@@ -1,12 +1,13 @@
 {
   "expo": {
     "name": "VnuaCafe",
-    "slug": "my-app",
+    "slug": "vnuacafe",
+    "scheme": "vnuacafe",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -19,6 +20,14 @@
           "photosPermission": "Ứng dụng cần truy cập vào thư viện ảnh của bạn để tải lên hình ảnh sản phẩm",
           "cameraPermission": "Ứng dụng cần truy cập vào camera của bạn để chụp ảnh sản phẩm"
         }
+      ],
+      "expo-camera",
+      "expo-notifications",
+      [
+        "expo-firebase-core",
+        {
+          "googleServicesFile": "./google-services.json"
+        }
       ]
     ],
     "ios": {
@@ -30,6 +39,7 @@
       }
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -41,7 +51,8 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.iplam24.myapp"
+      "versionCode": 6,
+      "package": "com.iplam24.vnuacafe"
     },
     "web": {
       "favicon": "./assets/favicon.png"

@@ -4,8 +4,14 @@ const {getProducts,getTopSelling,checkUser
     ,getUserRoleController, register,getUserAPI
     ,getAllUsersAPI,addProductAPI,deleteProductAPI,getProductDetailAPI,placeOrderAPI,listAllOrders
     ,updateOrderStatus,addCartAPI,placeOrderFromCartAPI,listAllStatusAPI,getAllCartAPI,getUserIdAPI,getRevenueByDateAPI,
-    getRevenueByMonthAPI,getRevenueByYearAPI,updateProductAPI,addShippingAddressAPI,getAllAdressShippingAPI,deleteAddressAPI,updateAvatarAPI,listAllOrderUserAPI
+    getRevenueByMonthAPI,getRevenueByYearAPI,updateProductAPI,addShippingAddressAPI,getAllAdressShippingAPI,deleteAddressAPI,updateAvatarAPI,listAllOrderUserAPI,
+    exportReportAPI
 }=require('../controller/apiController');
+const {savePushToken} = require('../services/token');
+
+const { createNotificationAPI,
+  getNotificationsAPI,
+  markAsReadAPI} = require('../controller/noticationController');
 const router =express.Router();
 
 
@@ -53,4 +59,20 @@ router.get('/thongke/ngay/:date', getRevenueByDateAPI);
 router.get('/thongke/thang/:year/:month', getRevenueByMonthAPI);
 router.get('/thongke/nam/:year', getRevenueByYearAPI);
 
+
+
+//=============EXCEL====//
+router.get('/thongke/xuatexcel/', exportReportAPI);
+
+
+//====THONG BAO===//
+
+router.post('/thongbao', createNotificationAPI);
+router.get('/thongbao/:userId', getNotificationsAPI);
+router.put('/thongbao/:id/read', markAsReadAPI);
+
+
+
+//===token===//
+router.put('/user/token/:userId',savePushToken);
 module.exports = router;

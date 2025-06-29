@@ -1,82 +1,89 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, SafeAreaView, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '@env';
 import { styles } from './loginScreencss';
+import { registerPushToken } from '../../../components/RegisterPushToken';
 
 export default function LoginScreen({ navigation }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isPasswordSaved, setIsPasswordSaved] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleLogin = async () => {
-    if (username === '' || password === '') {
-        Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin!');
-        return;
-    }
-
-    try {
-        const response = await fetch(`${API_URL}/dangnhap`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                ten_tai_khoan: username,
-                mat_khau: password,
-            }),
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Response Error:', errorText);
-            throw new Error('Không thể kết nối đến máy chủ hoặc sai thông tin');
+        if (username.trim() === '' || password.trim() === '') {
+            Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin!');
+            return;
         }
 
-        const data = await response.json();
+        setLoading(true);
 
-        if (data.exists && data.token) {
-            // Lưu token JWT
-            await AsyncStorage.setItem('token', data.token);
-            await AsyncStorage.setItem('userId', data.userId.toString());
-            const roleResponse = await fetch(`${API_URL}/getuserrole/${username}`, {
-                method: 'GET',
+        try {
+            const response = await fetch(`${API_URL}/dangnhap`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ten_tai_khoan: username, mat_khau: password }),
             });
 
-            if (!roleResponse.ok) {
-                const errorText = await roleResponse.text();
-                console.error('Lỗi khi lấy vai trò:', errorText);
-                throw new Error('Không thể lấy vai trò người dùng');
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Response Error:', errorText);
+                throw new Error('Không thể kết nối đến máy chủ hoặc sai thông tin');
             }
 
-            const roleData = await roleResponse.json();
+            const data = await response.json();
 
-            await AsyncStorage.setItem('role', roleData.vai_tro.toString());
-            await AsyncStorage.setItem('username', username);
+            if (data.exists && data.token && data.userId) {
+                await AsyncStorage.setItem('token', data.token);
+                await AsyncStorage.setItem('userId', data.userId.toString());
 
-            if (isPasswordSaved) {
-                await AsyncStorage.setItem('password', password);
+                let roleData;
+                try {
+                    const roleResponse = await fetch(`${API_URL}/getuserrole/${username}`, { method: 'GET' });
+                    if (!roleResponse.ok) {
+                        const errorText = await roleResponse.text();
+                        console.error('Lỗi khi lấy vai trò:', errorText);
+                        throw new Error('Không thể lấy vai trò người dùng');
+                    }
+                    roleData = await roleResponse.json();
+                    await AsyncStorage.setItem('role', roleData.vai_tro.toString());
+                } catch (roleError) {
+                    console.warn('Warning: Lấy vai trò thất bại, set role mặc định là 3 (người dùng)');
+                    roleData = { vai_tro: 3 };
+                    await AsyncStorage.setItem('role', '3');
+                }
+
+                await AsyncStorage.setItem('username', username);
+
+                if (isPasswordSaved) {
+                    await AsyncStorage.setItem('password', password);
+                } else {
+                    await AsyncStorage.removeItem('password');
+                }
+
+                try {
+                    await registerPushToken();
+                } catch (pushError) {
+                    console.warn('Lỗi khi gửi push token:', pushError);
+                }
+
+                Alert.alert('Thành công', 'Đăng nhập thành công!');
+
+                // Phần điều hướng đã bị xoá nha anh 💖
+            } else {
+                Alert.alert('Thất bại', 'Tên đăng nhập hoặc mật khẩu không đúng!');
             }
-
-            Alert.alert('Thành công', 'Đăng nhập thành công!');
-
-            if (roleData.vai_tro === 1) {
-                navigation.navigate('AdminHome');
-            } else if (roleData.vai_tro === 2) {
-                navigation.navigate('Staff');
-            } else if (roleData.vai_tro === 3) {
-                navigation.navigate('Home');
-            }
-        } else {
-            Alert.alert('Thất bại', 'Tên đăng nhập hoặc mật khẩu không đúng!');
+        } catch (error) {
+            console.error('Lỗi API:', error);
+            Alert.alert('Lỗi mạng', error.message || 'Không thể kết nối tới máy chủ!');
+        } finally {
+            setLoading(false);
         }
-    } catch (error) {
-        console.error('Lỗi API:', error);
-        Alert.alert('Lỗi mạng', error.message || 'Không thể kết nối tới máy chủ!');
-    }
-};
+    };
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -94,6 +101,7 @@ export default function LoginScreen({ navigation }) {
                     value={username}
                     onChangeText={setUsername}
                     placeholderTextColor="#888"
+                    autoCapitalize="none"
                 />
 
                 <View style={styles.passwordContainer}>
@@ -105,10 +113,7 @@ export default function LoginScreen({ navigation }) {
                         secureTextEntry={!showPassword}
                         placeholderTextColor="#888"
                     />
-                    <TouchableOpacity
-                        style={styles.showPasswordButton}
-                        onPress={() => setShowPassword(!showPassword)}
-                    >
+                    <TouchableOpacity style={styles.showPasswordButton} onPress={() => setShowPassword(!showPassword)}>
                         <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={22} color="#888" />
                     </TouchableOpacity>
                 </View>
@@ -130,8 +135,8 @@ export default function LoginScreen({ navigation }) {
                     <Text style={styles.rememberMeLabel}>Nhớ mật khẩu</Text>
                 </View>
 
-                <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                    <Text style={styles.loginButtonText}>Đăng nhập</Text>
+                <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={loading}>
+                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginButtonText}>Đăng nhập</Text>}
                 </TouchableOpacity>
 
                 <View style={styles.signUpContainer}>

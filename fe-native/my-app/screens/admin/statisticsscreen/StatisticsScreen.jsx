@@ -9,6 +9,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
 import { Picker } from '@react-native-picker/picker';
 import AdminFooter from '../../../components/AdminFooter';
+
 export default function StatisticsScreen() {
     const [date, setDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
@@ -80,6 +81,38 @@ export default function StatisticsScreen() {
         }
     };
 
+    const exportExcelByMonth = async () => {
+        if (!month || !year) {
+            return Alert.alert('Vui lòng chọn tháng và năm!');
+        }
+
+        try {
+            const url = `${API_URL}/thongke/xuatexcel?type=thang&year=${year}&month=${month}`;
+            const res = await fetch(url);
+
+            if (!res.ok) throw new Error('Không thể tải file');
+
+            const blob = await res.blob();
+            const fileURL = URL.createObjectURL(blob);
+
+            if (Platform.OS === 'web') {
+                const a = document.createElement('a');
+                a.href = fileURL;
+                a.download = `bao_cao_thang_${month}_${year}.xlsx`;
+                a.click();
+            } else {
+                Alert.alert(
+                    'Tải file',
+                    'Tính năng tải file chỉ hỗ trợ trên trình duyệt. Trên thiết bị di động cần xử lý riêng 💔📱'
+                );
+            }
+        } catch (err) {
+            console.error('Lỗi xuất báo cáo:', err);
+            Alert.alert('Lỗi', 'Không thể xuất báo cáo!');
+        }
+    };
+
+
     const chartDataMonth = {
         labels: revenueMonth.map(item => {
             const d = new Date(item.ngay);
@@ -146,7 +179,14 @@ export default function StatisticsScreen() {
                 </Picker>
 
                 <TouchableOpacity style={styles.button} onPress={fetchByMonth}>
-                    <Text style={styles.buttonText}>📊 Xem biểu đồ tháng</Text>
+                    <Text style={styles.buttonText}>Xem biểu đồ tháng</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[styles.button, { backgroundColor: '#16a34a' }]}
+                    onPress={exportExcelByMonth}
+                >
+                    <Text style={styles.buttonText}>Xuất báo cáo Excel</Text>
                 </TouchableOpacity>
 
                 {revenueMonth.length > 0 && (

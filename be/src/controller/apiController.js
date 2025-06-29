@@ -1,5 +1,5 @@
-const connection = require('../config/connectDB');
 require('dotenv').config();
+const ExcelJS = require('exceljs');
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcrypt');
@@ -627,10 +627,121 @@ const getRevenueByYearAPI = async (req, res) => {
   }
 };
 //===============Sửa thông tin =================//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//excel//
+const exportToExcel = async (data, type, title = '') => {
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet('Báo cáo');
+
+  // Tùy theo loại
+  if (type === 'ngay') {
+    sheet.columns = [
+      { header: 'Ngày', key: 'ngay', width: 15 },
+      { header: 'Doanh thu', key: 'doanh_thu', width: 20 },
+      { header: 'Số đơn hoàn thành', key: 'so_luong_don_hang_hoan_thanh', width: 20 },
+    ];
+  }
+
+  if (type === 'thang') {
+    sheet.columns = [
+      { header: 'Ngày', key: 'ngay', width: 15 },
+      { header: 'Doanh thu', key: 'doanh_thu', width: 20 },
+      { header: 'Số đơn hoàn thành', key: 'don', width: 20 },
+    ];
+  }
+
+  if (type === 'nam') {
+    sheet.columns = [
+      { header: 'Tháng', key: 'thang', width: 15 },
+      { header: 'Doanh thu', key: 'doanh_thu', width: 20 },
+      { header: 'Số đơn hoàn thành', key: 'don', width: 20 },
+    ];
+  }
+
+  data.forEach((item) => sheet.addRow(item));
+
+  const fileName = `bao_cao_${type}_${title}_${Date.now()}.xlsx`;
+  const filePath = path.join('exports', fileName);
+
+  // Đảm bảo thư mục tồn tại
+  fs.mkdirSync('exports', { recursive: true });
+
+  await workbook.xlsx.writeFile(filePath);
+  return filePath;
+};
   
+const exportReportAPI = async (req, res) => {
+  const { type, date, month, year } = req.query;
+
+  try {
+    let data = [];
+    let filePath = '';
+
+    if (type === 'ngay' && date) {
+      const result = await getRevenueByDate(date);
+      if (!result || result.length === 0) return res.status(404).json({ success: false, message: 'Không có dữ liệu cho ngày này' });
+
+      data = result;
+      filePath = await exportToExcel(data, 'ngay', date);
+    }
+
+    else if (type === 'thang' && month && year) {
+      const result = await getRevenueByMonth(month, year);
+      if (!result || result.length === 0) return res.status(404).json({ success: false, message: 'Không có dữ liệu cho tháng này' });
+
+      data = result;
+      filePath = await exportToExcel(data, 'thang', `${month}-${year}`);
+    }
+
+    else if (type === 'nam' && year) {
+      const result = await getRevenueByYear(year);
+      if (!result || result.length === 0) return res.status(404).json({ success: false, message: 'Không có dữ liệu cho năm này' });
+
+      data = result;
+      filePath = await exportToExcel(data, 'nam', year);
+    }
+
+    else {
+      return res.status(400).json({ success: false, message: 'Thiếu tham số phù hợp' });
+    }
+
+    res.download(path.resolve(__dirname, '..', filePath), (err) => {
+      if (err) {
+        console.error('Lỗi gửi file:', err);
+        res.status(500).json({ success: false, message: 'Không thể gửi file' });
+      } else {
+        // Xoá file sau khi gửi (tùy chọn)
+        setTimeout(() => {
+          fs.unlink(path.resolve(__dirname, '..', filePath), () => {});
+        }, 5000);
+      }
+    });
+  } catch (err) {
+    console.error('Lỗi xuất báo cáo:', err);
+    res.status(500).json({ success: false, message: 'Lỗi server khi xuất báo cáo' });
+  }
+};
+
+
 module.exports = {getProducts,getTopSelling,checkUser,getUserRoleController,register,getUserAPI,
   getAllUsersAPI,addProductAPI,getProductDetailAPI,placeOrderAPI,listAllOrders,updateOrderStatus,addCartAPI,
   placeOrderFromCartAPI,listAllStatusAPI,getAllCartAPI,getUserIdAPI,getRevenueByDateAPI,
   getRevenueByMonthAPI,getRevenueByYearAPI, updateProductAPI,deleteProductAPI,addShippingAddressAPI,getAllAdressShippingAPI,deleteAddressAPI,updateAvatarAPI,listAllOrderUserAPI
+  ,exportReportAPI
 }
 

@@ -47,10 +47,11 @@ const AdminFooter = () => {
         <Text style={styles.footerLabel}>Thống kê</Text>
       </TouchableOpacity>
        <TouchableOpacity style={styles.footerItem} onPress={()=>{
-          navigation.navigate("Statistics");
+          navigation.navigate("Notification");
       }}>
         <Ionicons name="settings-outline" size={22} color="#1f6f8b" />
-        <Text style={styles.footerLabel}>Cài đặt</Text>
+        <Text style={styles.footerLabel}
+        >Cài đặt</Text>
       </TouchableOpacity>
     </View>
   );

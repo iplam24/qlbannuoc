@@ -19,6 +19,7 @@ CREATE TABLE nguoi_dung (
     email VARCHAR(100),
     id_vai_tro INT,
     img VARCHAR(255),
+    push_token VARCHAR(255),
     da_xoa int DEFAULT 0,
     FOREIGN KEY (id_vai_tro) REFERENCES vai_tro (id)
 );
@@ -109,6 +110,13 @@ CREATE TABLE gio_hang (
     FOREIGN KEY (id_nguoi_dung) REFERENCES nguoi_dung(id),
     FOREIGN KEY (id_san_pham) REFERENCES san_pham(id),
     UNIQUE (id_nguoi_dung, id_san_pham)
+);
+CREATE TABLE thong_bao (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  id_nguoi_dung INT, -- Ai nhận thông báo
+  tin_nhan TEXT NOT NULL,
+  da_doc BOOLEAN DEFAULT FALSE,
+  thoi_gian_tao DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 
