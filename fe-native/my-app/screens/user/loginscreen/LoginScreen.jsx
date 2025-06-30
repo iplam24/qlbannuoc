@@ -65,14 +65,19 @@ export default function LoginScreen({ navigation }) {
                 }
 
                 try {
-                    await registerPushToken();
+                    //  await registerPushToken();
                 } catch (pushError) {
                     console.warn('Lỗi khi gửi push token:', pushError);
                 }
 
                 Alert.alert('Thành công', 'Đăng nhập thành công!');
+                if (roleData.vai_tro === 1) {
+                    navigation.replace('AdminHome');
+                } else {
+                    navigation.replace('Home');
+                }
 
-                // Phần điều hướng đã bị xoá nha anh 💖
+
             } else {
                 Alert.alert('Thất bại', 'Tên đăng nhập hoặc mật khẩu không đúng!');
             }

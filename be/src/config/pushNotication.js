@@ -1,12 +1,12 @@
 const admin = require('firebase-admin');
 const serviceAccount = require('./service-account.json'); 
-
+const db = require('./connectDB');
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
 // Hàm gửi notification với FCM token lấy từ DB
-const sendPushNotificationFCM = async (userId, message) => {
+const sendPushNotification = async (userId, message) => {
   try {
     const [rows] = await db.promise().query(
       'SELECT push_token FROM nguoi_dung WHERE id = ?',
@@ -14,6 +14,8 @@ const sendPushNotificationFCM = async (userId, message) => {
     );
 
     const fcmToken = rows[0]?.push_token;
+    console.log('🎯 Token đang gửi:', fcmToken);
+
     if (!fcmToken) {
       console.log('❌ Không có FCM token cho user:', userId);
       return;
@@ -34,4 +36,4 @@ const sendPushNotificationFCM = async (userId, message) => {
   }
 };
 
-module.exports = { sendPushNotificationFCM };
+module.exports = { sendPushNotification };
