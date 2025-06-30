@@ -6,14 +6,18 @@ import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import AdminFooter from '../../../components/AdminFooter';
+import { Picker } from '@react-native-picker/picker';
 
 export default function NotificationScreen() {
     const [notifications, setNotifications] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [newMessage, setNewMessage] = useState('');
+    const [userList, setUserList] = useState([]);
+    const [selectedUserId, setSelectedUserId] = useState(null);
 
     useEffect(() => {
         fetchNotifications();
+        fetchUsers();
     }, []);
 
     const fetchNotifications = async () => {
@@ -34,6 +38,20 @@ export default function NotificationScreen() {
         }
     };
 
+    const fetchUsers = async () => {
+        try {
+            const res = await fetch(`${API_URL}/getallusers`);
+            const json = await res.json();
+
+            // Vì json là mảng nên lọc trực tiếp
+            const filteredUsers = json.filter(user => user.id_vai_tro !== 1);
+            setUserList(filteredUsers);
+        } catch (err) {
+            console.error('Lỗi khi lấy danh sách người dùng:', err);
+        }
+    };
+
+
     const markAsRead = async (id) => {
         try {
             const res = await fetch(`${API_URL}/thongbao/${id}/read`, { method: 'PUT' });
@@ -44,9 +62,8 @@ export default function NotificationScreen() {
     };
 
     const addNotification = async () => {
-        const userId = await AsyncStorage.getItem('userId');
-        if (!newMessage.trim()) {
-            Alert.alert('Vui lòng nhập nội dung thông báo');
+        if (!newMessage.trim() || !selectedUserId) {
+            Alert.alert('Vui lòng chọn người nhận và nhập nội dung!');
             return;
         }
 
@@ -54,16 +71,17 @@ export default function NotificationScreen() {
             const res = await fetch(`${API_URL}/thongbao`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id_nguoi_dung: userId, tin_nhan: newMessage }),
+                body: JSON.stringify({ id_nguoi_dung: selectedUserId, tin_nhan: newMessage }),
             });
 
             if (res.ok) {
                 setModalVisible(false);
                 setNewMessage('');
+                setSelectedUserId(null);
                 fetchNotifications();
-                Alert.alert('✔️', 'Đã thêm thông báo!');
+                Alert.alert('✔️', 'Đã gửi thông báo!');
             } else {
-                Alert.alert('Lỗi', 'Không thêm được thông báo');
+                Alert.alert('Lỗi', 'Không gửi được thông báo');
             }
         } catch (err) {
             Alert.alert('Lỗi', 'Không thể gửi thông báo');
@@ -131,6 +149,21 @@ export default function NotificationScreen() {
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>Thêm thông báo mới</Text>
+
+                        <Picker
+                            selectedValue={selectedUserId}
+                            onValueChange={(value) => setSelectedUserId(value)}
+                        >
+                            <Picker.Item label="Chọn người nhận" value={null} />
+                            {userList.map((user) => (
+                                <Picker.Item
+                                    key={user.id}
+                                    label={user.ho_ten || user.ten_tai_khoan}
+                                    value={user.id}
+                                />
+                            ))}
+                        </Picker>
+
                         <TextInput
                             style={styles.input}
                             placeholder="Nhập nội dung..."
@@ -170,10 +203,8 @@ const styles = StyleSheet.create({
     readText: { fontWeight: 'normal', color: '#888' },
     time: { fontSize: 12, marginTop: 6, color: '#666' },
     cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-
     modalContainer: {
-        flex: 1, justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)',
-        padding: 20
+        flex: 1, justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)', padding: 20
     },
     modalContent: {
         backgroundColor: '#fff', borderRadius: 12, padding: 20
@@ -183,7 +214,7 @@ const styles = StyleSheet.create({
     },
     input: {
         height: 100, borderColor: '#ccc', borderWidth: 1, borderRadius: 8,
-        padding: 10, textAlignVertical: 'top'
+        padding: 10, textAlignVertical: 'top', marginTop: 10
     },
     modalActions: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 },
     cancelBtn: { marginRight: 15 },
